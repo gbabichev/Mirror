@@ -1,0 +1,15 @@
+# Xcode build files
+build/
+DerivedData/
+*.xcuserstate
+
+# Signing and secrets
+Signing.xcconfig
+
+# macOS system files
+.DS_Store
+
+# Xcode workspace user data (safe to ignore)
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
