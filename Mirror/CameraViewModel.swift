@@ -16,6 +16,9 @@ import AVFoundation
 import Combine
 
 class CameraViewModel: ObservableObject {
+    
+    @Published var cameraDebugStatus: String = ""
+    
     // Index of the currently selected camera device
     @Published var currentDeviceIndex: Int = 0
     
@@ -44,13 +47,14 @@ class CameraViewModel: ObservableObject {
     // Initializes state, loads mirror setting, discovers devices, sets default camera
     init() {
         self.isMirrored = UserDefaults.standard.bool(forKey: "isMirrored")
-        let discoverySession = AVCaptureDevice.DiscoverySession(
-            deviceTypes: [.builtInWideAngleCamera],
-            mediaType: .video,
-            position: .unspecified
-        )
-        videoDevices = discoverySession.devices
-        switchToCamera(at: 0)
+        observeDeviceChanges()
+        refreshVideoDevices()
+
+        if !videoDevices.isEmpty {
+            switchToCamera(at: 0)
+        } else {
+            cameraDebugStatus = "❌ No video devices found at launch"
+        }
     }
 
     // Checks current camera permission and requests it if not yet determined
@@ -88,21 +92,84 @@ class CameraViewModel: ObservableObject {
     // Switches the session input to a new camera device by index
     // Removes existing inputs and adds the selected device input
     func switchToCamera(at index: Int) {
+        print("🟡 switchToCamera called with index \(index)")
+        self.cameraDebugStatus = "🟡 Switching to camera index \(index)"
         guard index < videoDevices.count else { return }
-        currentDeviceIndex = index
-        let device = videoDevices[index]
 
-        session.beginConfiguration()
-        session.inputs.forEach { session.removeInput($0) }
+        let device = videoDevices[index]
+        let newSession = AVCaptureSession()
 
         guard let input = try? AVCaptureDeviceInput(device: device),
-              session.canAddInput(input) else {
-            session.commitConfiguration()
+              newSession.canAddInput(input) else {
+            print("Failed to add input for device: \(device.localizedName)")
             return
         }
 
-        session.addInput(input)
-        session.commitConfiguration()
-        session.startRunning()
+        newSession.addInput(input)
+        newSession.startRunning()
+
+        self.currentDeviceIndex = index
+        self.session = newSession // <– this triggers SwiftUI update
+
+        print("Switched to camera: \(device.localizedName)")
+        self.cameraDebugStatus = "Switched to: \(device.localizedName) — inputs: \(newSession.inputs.count)"
     }
+    
+    func refreshVideoDevices() {
+        let discoverySession = AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.builtInWideAngleCamera, .external],
+            mediaType: .video,
+            position: .unspecified
+        )
+        videoDevices = discoverySession.devices
+
+        if videoDevices.isEmpty {
+            print("❌ No video devices found")
+            cameraDebugStatus = "❌ No cameras detected"
+            session = AVCaptureSession() // clear session to trigger view update
+        } else {
+            print("✅ Found devices: \(videoDevices.map { $0.localizedName }.joined(separator: ", "))")
+            cameraDebugStatus = "✅ Found: \(videoDevices.first?.localizedName ?? "Unknown")"
+        }
+    }
+    
+    private func observeDeviceChanges() {
+        NotificationCenter.default.addObserver(
+            forName: AVCaptureDevice.wasConnectedNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                guard let self = self else { return }
+                self.refreshVideoDevices()
+                if !self.videoDevices.isEmpty {
+                    self.switchToCamera(at: 0)
+                } else {
+                    self.cameraDebugStatus = "❌ No devices after connect"
+                }
+            }
+        }
+
+        NotificationCenter.default.addObserver(
+            forName: AVCaptureDevice.wasDisconnectedNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self = self else { return }
+            self.refreshVideoDevices()
+
+            // Always fall back to the first working camera in the refreshed list
+            if let fallbackDevice = self.videoDevices.first {
+                print("DISCONNECTED or invalid device. Switching to: \(fallbackDevice.localizedName)")
+                self.switchToCamera(at: 0)
+            } else {
+                print("No available cameras to switch to.")
+            }
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
 }

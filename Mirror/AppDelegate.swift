@@ -69,6 +69,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
     @objc func handleRightClick() {
         let menu = NSMenu()
 
+        // Refresh video devices on each right click so we're not showing stale devices.
+        viewModel.refreshVideoDevices()
+        
         // Shows a list of available cameras.
         for (index, name) in viewModel.deviceNames.enumerated() {
             let item = NSMenuItem(title: name, action: #selector(selectCamera(_:)), keyEquivalent: "")

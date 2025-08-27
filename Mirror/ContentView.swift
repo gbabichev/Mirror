@@ -57,13 +57,23 @@ struct CameraPreviewView: NSViewRepresentable {
 
     // Updates the mirror setting whenever the SwiftUI binding changes
     func updateNSView(_ nsView: VideoPreviewView, context: Context) {
+        guard let previewLayer = nsView.layer?.sublayers?.compactMap({ $0 as? AVCaptureVideoPreviewLayer }).first else {
+            nsView.setupLayer(with: session)
+            nsView.updateMirror(isMirrored)
+            return
+        }
+
+        if previewLayer.session !== session {
+            previewLayer.session = session
+        }
+
         nsView.updateMirror(isMirrored)
     }
 }
 
 // MARK: - ContentView (Main App UI)
 struct ContentView: View {
-    @ObservedObject var cameraViewModel: CameraViewModel    
+    @ObservedObject var cameraViewModel: CameraViewModel
 
     // Main SwiftUI View displaying either the camera preview or permission prompt
     var body: some View {
@@ -92,9 +102,20 @@ struct ContentView: View {
         #else
         if cameraViewModel.hasCameraAccess {
             ZStack {
-                CameraPreviewView(session: cameraViewModel.session, isMirrored: $cameraViewModel.isMirrored)
-                    .frame(width: 500, height: 500)
-
+//                CameraPreviewView(session: cameraViewModel.session, isMirrored: $cameraViewModel.isMirrored)
+//                    .id(cameraViewModel.session)
+//                    .frame(width: 500, height: 500)
+                VStack {
+                    if !cameraViewModel.cameraDebugStatus.isEmpty {
+                        Text(cameraViewModel.cameraDebugStatus)
+                            .font(.caption2)
+                            .foregroundColor(.red)
+                            .padding(.top, 15)
+                    }
+                    CameraPreviewView(session: cameraViewModel.session, isMirrored: $cameraViewModel.isMirrored)
+                        .frame(width: 500, height: 500)
+                }
+                
                 if cameraViewModel.session.inputs.isEmpty {
                     Text("No Cameras Connected")
                         .foregroundColor(.white)
