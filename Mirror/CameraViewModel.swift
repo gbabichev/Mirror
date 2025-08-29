@@ -92,7 +92,7 @@ class CameraViewModel: ObservableObject {
     // Switches the session input to a new camera device by index
     // Removes existing inputs and adds the selected device input
     func switchToCamera(at index: Int) {
-        print("🟡 switchToCamera called with index \(index)")
+        //print("🟡 switchToCamera called with index \(index)")
         self.cameraDebugStatus = "🟡 Switching to camera index \(index)"
         guard index < videoDevices.count else { return }
 
@@ -101,7 +101,7 @@ class CameraViewModel: ObservableObject {
 
         guard let input = try? AVCaptureDeviceInput(device: device),
               newSession.canAddInput(input) else {
-            print("Failed to add input for device: \(device.localizedName)")
+            //print("Failed to add input for device: \(device.localizedName)")
             return
         }
 
@@ -111,7 +111,7 @@ class CameraViewModel: ObservableObject {
         self.currentDeviceIndex = index
         self.session = newSession // <– this triggers SwiftUI update
 
-        print("Switched to camera: \(device.localizedName)")
+        //print("Switched to camera: \(device.localizedName)")
         self.cameraDebugStatus = "Switched to: \(device.localizedName) — inputs: \(newSession.inputs.count)"
     }
     
@@ -124,11 +124,11 @@ class CameraViewModel: ObservableObject {
         videoDevices = discoverySession.devices
 
         if videoDevices.isEmpty {
-            print("❌ No video devices found")
+            //print("❌ No video devices found")
             cameraDebugStatus = "❌ No cameras detected"
             session = AVCaptureSession() // clear session to trigger view update
         } else {
-            print("✅ Found devices: \(videoDevices.map { $0.localizedName }.joined(separator: ", "))")
+            //print("✅ Found devices: \(videoDevices.map { $0.localizedName }.joined(separator: ", "))")
             cameraDebugStatus = "✅ Found: \(videoDevices.first?.localizedName ?? "Unknown")"
         }
     }
@@ -159,11 +159,11 @@ class CameraViewModel: ObservableObject {
             self.refreshVideoDevices()
 
             // Always fall back to the first working camera in the refreshed list
-            if let fallbackDevice = self.videoDevices.first {
-                print("DISCONNECTED or invalid device. Switching to: \(fallbackDevice.localizedName)")
+            if self.videoDevices.first != nil {
+                //print("DISCONNECTED or invalid device. Switching to: \(fallbackDevice.localizedName)")
                 self.switchToCamera(at: 0)
             } else {
-                print("No available cameras to switch to.")
+                //print("No available cameras to switch to.")
             }
         }
     }

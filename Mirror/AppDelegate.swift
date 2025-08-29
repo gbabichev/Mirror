@@ -80,7 +80,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
 
             if viewModel.videoDevices.indices.contains(index) {
                 let device = viewModel.videoDevices[index]
-                print("📷 \(device.localizedName) — connected: \(device.isConnected), suspended: \(device.isSuspended)")
+                //print("📷 \(device.localizedName) — connected: \(device.isConnected), suspended: \(device.isSuspended)")
                 
                 if device.isUsable {
                     item.action = #selector(selectCamera(_:))
@@ -160,9 +160,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
         viewModel.checkCameraAuthorization { granted in
             if granted {
                 self.viewModel.startSession()
-            } else {
-                // Optionally show an alert or log a message
-                print("Camera access denied.")
             }
         }
     }
@@ -180,7 +177,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
     // Switches to the selected camera when a menu item is clicked
     @objc func selectCamera(_ sender: NSMenuItem) {
         guard sender.isEnabled else {
-            print("⛔️ Ignored disabled menu item: \(sender.title)")
+            //print("⛔️ Ignored disabled menu item: \(sender.title)")
             return
         }
         if let index = sender.representedObject as? Int {

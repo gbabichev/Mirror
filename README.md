@@ -15,23 +15,19 @@
 
 ## 📸 Screenshots
 
-Light Mode with macOS 26 icon support.
-<br>
 <p align="center">
-<img src="docs/demo.png" alt="Light Mode Screenshot" width="30%">
-<br>
-<img src="docs/iconLight.png" alt="Light Mode Screenshot" width="10%">
-<img src="docs/iconDark.png" alt="Light Mode Screenshot" width="10%">
-
+    <img src="docs/demo.png" alt="Light Mode Screenshot" width="30%">
 </p>
-<br>
-
 
 ---
 
 ## 🛠 Installation
 
-Grab it from the Releases page, unzip & run or drop into /Applications. 
+Grab it from the Releases page, unzip & run or drop into /Applications.
+It's signed and notarized!
+
+
+## 🛠 DIY
 
 Clone the repo and build with Xcode:
 
@@ -40,6 +36,18 @@ git clone https://github.com/gbabichev/Mirror.git
 cd Mirror
 open Mirror.xcodeproj
 ```
+
+## 📝 Changelog
+
+### 1.1
+- Fixed right-click target — it's now easier to right-click and select a camera.
+- Added support for USB cameras.
+- Suspended cameras are now grayed out.
+- Added a button to close the preview, instead of automatically closing on any other click. This lets you play with filters and other camera settings in the native macOS setting editor. 
+- Signed and notarized! The app won't expire after a few days anymore 😊
+
+### 1.0
+- Initial release.
 
 ## 📄 License
 
