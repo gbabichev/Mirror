@@ -154,9 +154,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
 
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         // Add global click monitor to close popover on outside click
-        globalClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            self?.popover.performClose(nil)
-        }
+//        globalClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
+//            self?.popover.performClose(nil)
+//        }
         viewModel.checkCameraAuthorization { granted in
             if granted {
                 self.viewModel.startSession()

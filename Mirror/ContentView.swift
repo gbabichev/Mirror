@@ -129,13 +129,28 @@ struct ContentView: View {
                 VStack {
                     Spacer()
                     HStack {
+                        Button(action: {
+                            NSApp.sendAction(#selector(NSPopover.performClose(_:)), to: nil, from: nil)
+                        }) {
+                            Image(systemName: "xmark")
+                                .foregroundColor(.white)
+                                .font(.system(size: 16))
+                                .opacity(0.8)
+                                .padding(12)
+                                .background(Circle().fill(Color.black.opacity(0.3)))
+                        }
+                        .buttonStyle(.plain)
+                        .padding(6)
+                        .help("Close Preview")
+
                         Spacer()
+
                         Button(action: {
                             cameraViewModel.isMirrored.toggle()
                         }) {
                             Image(systemName: "arrow.left.and.right.righttriangle.left.righttriangle.right")
                                 .foregroundColor(.white)
-                                .font(.system(size: 24))
+                                .font(.system(size: 16))
                                 .opacity(0.8)
                                 .padding(12) // Space inside the circle
                                 .background(Circle().fill(Color.black.opacity(0.3)))
