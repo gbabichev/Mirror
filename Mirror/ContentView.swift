@@ -106,12 +106,12 @@ struct ContentView: View {
 //                    .id(cameraViewModel.session)
 //                    .frame(width: 500, height: 500)
                 VStack {
-                    if !cameraViewModel.cameraDebugStatus.isEmpty {
-                        Text(cameraViewModel.cameraDebugStatus)
-                            .font(.caption2)
-                            .foregroundColor(.red)
-                            .padding(.top, 15)
-                    }
+//                    if !cameraViewModel.cameraDebugStatus.isEmpty {
+//                        Text(cameraViewModel.cameraDebugStatus)
+//                            .font(.caption2)
+//                            .foregroundColor(.red)
+//                            .padding(.top, 15)
+//                    }
                     CameraPreviewView(session: cameraViewModel.session, isMirrored: $cameraViewModel.isMirrored)
                         .frame(width: 500, height: 500)
                 }

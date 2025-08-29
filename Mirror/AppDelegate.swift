@@ -11,7 +11,7 @@
 // Xcode -> Project (left bar, top item) -> Target (in left bar) -> Build Settings
 // -> search for "Swift Compiler - Custom Flags" -> add "DEMO" under "Release".
 // NOTE - This only works for "Archive", not debug or run.
-// Set the demo flag, archive the app, distribute & test. 
+// Set the demo flag, archive the app, distribute & test.
 
 // MARK: - AppDelegate
 // Handles menu bar UI, popover lifecycle, right-click camera switcher, and session control
@@ -21,6 +21,7 @@
 import AppKit
 import SwiftUI
 import ServiceManagement
+import AVFoundation
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDelegate {
     // Bundle ID of Helper App
@@ -50,14 +51,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
         popover.delegate = self
         popover.contentSize = NSSize(width: 500, height: 500)
 
-        // Add local event monitor for right click on status bar button
+        // Add local event monitor for right click on status bar button (more reliable local coordinates)
         NSEvent.addLocalMonitorForEvents(matching: [.rightMouseUp]) { [weak self] event in
             guard let self = self, let button = self.statusItem.button else { return event }
 
-            let mouseLocation = NSEvent.mouseLocation
-            let buttonFrame = button.window?.convertToScreen(button.frame) ?? .zero
-
-            if buttonFrame.contains(mouseLocation) {
+            let locationInButton = button.convert(event.locationInWindow, from: nil)
+            if button.bounds.contains(locationInButton) {
                 self.handleRightClick()
                 return nil
             }
@@ -78,6 +77,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
             item.representedObject = index
             item.state = index == viewModel.currentDeviceIndex ? .on : .off
             item.target = self
+
+            if viewModel.videoDevices.indices.contains(index) {
+                let device = viewModel.videoDevices[index]
+                print("📷 \(device.localizedName) — connected: \(device.isConnected), suspended: \(device.isSuspended)")
+                
+                if device.isUsable {
+                    item.action = #selector(selectCamera(_:))
+                    item.target = self
+                    item.isEnabled = true
+                } else {
+                    item.action = nil
+                    item.target = nil
+                    item.isEnabled = false
+                }
+            }
+
             menu.addItem(item)
         }
         
@@ -164,6 +179,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
 
     // Switches to the selected camera when a menu item is clicked
     @objc func selectCamera(_ sender: NSMenuItem) {
+        guard sender.isEnabled else {
+            print("⛔️ Ignored disabled menu item: \(sender.title)")
+            return
+        }
         if let index = sender.representedObject as? Int {
             viewModel.currentDeviceIndex = index
             viewModel.switchToCamera(at: index)
@@ -202,7 +221,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
         let currentlyEnabled = isLaunchAtLoginEnabled()
         toggleLaunchAtLogin(!currentlyEnabled)
     }
+}
 
+// MARK: - AVCaptureDevice Extension
+
+extension AVCaptureDevice {
+    var isUsable: Bool {
+        if #available(macOS 14, *) {
+            return isConnected && !isSuspended
+        } else {
+            return isConnected
+        }
+    }
 }
 
 // MARK: - MirrorApp Entry Point
