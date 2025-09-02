@@ -39,6 +39,10 @@ open Mirror.xcodeproj
 
 ## 📝 Changelog
 
+### 1.1.1
+- Improved camera preview startup. 
+- Improved camera selection menu logic.
+
 ### 1.1
 - Fixed right-click target — it's now easier to right-click and select a camera.
 - Added support for USB cameras.

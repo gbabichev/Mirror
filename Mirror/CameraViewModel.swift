@@ -92,8 +92,6 @@ class CameraViewModel: ObservableObject {
     // Switches the session input to a new camera device by index
     // Removes existing inputs and adds the selected device input
     func switchToCamera(at index: Int) {
-        //print("🟡 switchToCamera called with index \(index)")
-        self.cameraDebugStatus = "🟡 Switching to camera index \(index)"
         guard index < videoDevices.count else { return }
 
         let device = videoDevices[index]
@@ -101,21 +99,27 @@ class CameraViewModel: ObservableObject {
 
         guard let input = try? AVCaptureDeviceInput(device: device),
               newSession.canAddInput(input) else {
-            //print("Failed to add input for device: \(device.localizedName)")
             return
         }
 
         newSession.addInput(input)
-        newSession.startRunning()
-
+        
+        // Update the published property BEFORE starting
         self.currentDeviceIndex = index
-        self.session = newSession // <– this triggers SwiftUI update
-
-        //print("Switched to camera: \(device.localizedName)")
+        self.session = newSession
         self.cameraDebugStatus = "Switched to: \(device.localizedName) — inputs: \(newSession.inputs.count)"
+        
+        // Start session after UI is notified
+        DispatchQueue.main.async {
+            newSession.startRunning()
+        }
     }
     
     func refreshVideoDevices() {
+        let previousDeviceId = videoDevices.indices.contains(currentDeviceIndex)
+            ? videoDevices[currentDeviceIndex].uniqueID
+            : nil
+        
         let discoverySession = AVCaptureDevice.DiscoverySession(
             deviceTypes: [.builtInWideAngleCamera, .external],
             mediaType: .video,
@@ -124,12 +128,21 @@ class CameraViewModel: ObservableObject {
         videoDevices = discoverySession.devices
 
         if videoDevices.isEmpty {
-            //print("❌ No video devices found")
-            cameraDebugStatus = "❌ No cameras detected"
-            session = AVCaptureSession() // clear session to trigger view update
+            cameraDebugStatus = "⚠️ No cameras detected"
+            session = AVCaptureSession()
+            currentDeviceIndex = 0
         } else {
-            //print("✅ Found devices: \(videoDevices.map { $0.localizedName }.joined(separator: ", "))")
-            cameraDebugStatus = "✅ Found: \(videoDevices.first?.localizedName ?? "Unknown")"
+            // Try to find the previously selected camera
+            if let previousId = previousDeviceId,
+               let newIndex = videoDevices.firstIndex(where: { $0.uniqueID == previousId }) {
+                // Previous camera still exists, update index to new position
+                currentDeviceIndex = newIndex
+                cameraDebugStatus = "✅ Reconnected to: \(videoDevices[newIndex].localizedName)"
+            } else {
+                // Previous camera not found, fall back to first available
+                currentDeviceIndex = 0
+                cameraDebugStatus = "✅ Switched to: \(videoDevices[0].localizedName)"
+            }
         }
     }
     
@@ -143,9 +156,10 @@ class CameraViewModel: ObservableObject {
                 guard let self = self else { return }
                 self.refreshVideoDevices()
                 if !self.videoDevices.isEmpty {
-                    self.switchToCamera(at: 0)
+                    // Use the updated currentDeviceIndex from refreshVideoDevices
+                    self.switchToCamera(at: self.currentDeviceIndex)
                 } else {
-                    self.cameraDebugStatus = "❌ No devices after connect"
+                    self.cameraDebugStatus = "⚠️ No devices after connect"
                 }
             }
         }
@@ -158,12 +172,9 @@ class CameraViewModel: ObservableObject {
             guard let self = self else { return }
             self.refreshVideoDevices()
 
-            // Always fall back to the first working camera in the refreshed list
-            if self.videoDevices.first != nil {
-                //print("DISCONNECTED or invalid device. Switching to: \(fallbackDevice.localizedName)")
-                self.switchToCamera(at: 0)
-            } else {
-                //print("No available cameras to switch to.")
+            if !self.videoDevices.isEmpty {
+                // Use the updated currentDeviceIndex from refreshVideoDevices
+                self.switchToCamera(at: self.currentDeviceIndex)
             }
         }
     }

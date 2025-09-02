@@ -64,10 +64,17 @@ struct CameraPreviewView: NSViewRepresentable {
         }
 
         if previewLayer.session !== session {
+            // Stop the old session before switching
+            previewLayer.session?.stopRunning()
             previewLayer.session = session
+            
+            // Small delay to ensure session is ready
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                nsView.updateMirror(isMirrored)
+            }
+        } else {
+            nsView.updateMirror(isMirrored)
         }
-
-        nsView.updateMirror(isMirrored)
     }
 }
 

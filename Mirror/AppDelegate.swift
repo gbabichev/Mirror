@@ -148,18 +148,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
     @objc func showPopover() {
         guard let button = statusItem.button else { return }
 
-        let contentView = ContentView(cameraViewModel: viewModel)
-        let hosting = NSHostingController(rootView: contentView)
-        popover.contentViewController = hosting
-
-        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-        // Add global click monitor to close popover on outside click
-//        globalClickMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-//            self?.popover.performClose(nil)
-//        }
-        viewModel.checkCameraAuthorization { granted in
-            if granted {
-                self.viewModel.startSession()
+        viewModel.checkCameraAuthorization { [weak self] granted in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                
+                if granted {
+                    let contentView = ContentView(cameraViewModel: self.viewModel)
+                    let hosting = NSHostingController(rootView: contentView)
+                    self.popover.contentViewController = hosting
+                    
+                    self.popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+                    
+                    // Start session after popover is shown
+                    self.viewModel.startSession()
+                } else {
+                    // Handle no permission case
+                    let contentView = ContentView(cameraViewModel: self.viewModel)
+                    let hosting = NSHostingController(rootView: contentView)
+                    self.popover.contentViewController = hosting
+                    self.popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+                }
             }
         }
     }
