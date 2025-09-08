@@ -1,8 +1,23 @@
-# 📷 Mirror
+<div align="center">
+
+# Mirror
+
+<picture>
+  <source srcset="docs//icon-dark.png" media="(prefers-color-scheme: dark)">
+  <source srcset="docs/icon-light.png" media="(prefers-color-scheme: light)">
+  <img src="docs/icon-light.png" alt="App Icon" width="100">
+</picture>
+<br/><br/>
 
 **Mirror** is a lightweight macOS app that lives in your menu bar and gives you a quick, private webcam preview — perfect for checking your hair, lighting, or surroundings before hopping into a meeting.
 
----
+</div>
+
+## 🖥️ Screenshots 
+
+<p align="center">
+    <img src="docs/demo.png" alt="Light Mode Screenshot" width="30%">
+</p>
 
 ## ✨ Features
 
@@ -11,14 +26,6 @@
 - 🎥 **Camera Selection**: Right-click the menu bar icon to switch between available video devices.
 - 🚀 **Launch at Login**: Right-click the menu bar icon to enable automatically opening the app on logon. 
 - 🎨 **macOS 26 Ready**: Fully supports macOS 26 with custom high-resolution app icons for light/dark/clear mode. 
----
-
-## 📸 Screenshots
-
-<p align="center">
-    <img src="docs/demo.png" alt="Light Mode Screenshot" width="30%">
-</p>
-
 ---
 
 ## 🛠 Installation
@@ -38,6 +45,9 @@ open Mirror.xcodeproj
 ```
 
 ## 📝 Changelog
+
+### 1.1.2
+- Updated app icon & readme.
 
 ### 1.1.1
 - Improved camera preview startup. 

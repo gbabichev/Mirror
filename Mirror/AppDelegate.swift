@@ -131,6 +131,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate, NSMenuDel
         window.styleMask = [.titled, .closable]
         window.isReleasedWhenClosed = false
         window.makeKeyAndOrderFront(nil)
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
         NSApp.activate(ignoringOtherApps: true)
     }
     
