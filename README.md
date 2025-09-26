@@ -1,11 +1,9 @@
 <div align="center">
 
-# Mirror
-
 <picture>
-  <source srcset="docs//icon-dark.png" media="(prefers-color-scheme: dark)">
-  <source srcset="docs/icon-light.png" media="(prefers-color-scheme: light)">
-  <img src="docs/icon-light.png" alt="App Icon" width="100">
+  <source srcset="Documentation/icon-dark.png" media="(prefers-color-scheme: dark)">
+  <source srcset="Documentation/icon-light.png" media="(prefers-color-scheme: light)">
+  <img src="Documentation/icon-light.png" alt="App Icon" width="100">
 </picture>
 <br/><br/>
 
@@ -16,7 +14,7 @@
 ## 🖥️ Screenshots 
 
 <p align="center">
-    <img src="docs/demo.png" alt="Light Mode Screenshot" width="30%">
+    <img src="Documentation/demo.png" alt="Light Mode Screenshot" width="30%">
 </p>
 
 ## ✨ Features
@@ -66,3 +64,9 @@ open Mirror.xcodeproj
 ## 📄 License
 
 MIT — free for personal and commercial use. 
+
+## Privacy
+<a href="Documentation/PrivacyPolicy.html">Privacy Policy</a>
+
+## Support 
+<a href="Documentation/Support.html">Support</a>
